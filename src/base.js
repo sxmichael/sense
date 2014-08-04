@@ -204,8 +204,20 @@ function copyAsCURL() {
         curl += "'";
     }
 
-    //console.log(curl);
-    copyToClipboard(curl);
+    var curl_popup = $("#curl_popup");
+
+    curl_popup.find("#example_editor_container")
+        .html('<textarea id="example_editor" style="width: 500px; height: 380px;" readonly>\n'
+            + curl
+            + '\n'
+            + '</textarea>');
+        
+    curl_popup.modal();
+
+    curl_popup.on('shown', function () {
+        $('#example_editor').focus();
+        $('#example_editor').select();
+    });
 
 }
 
