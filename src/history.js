@@ -1,5 +1,4 @@
 (function () {
-
    var global = window;
 
    var history_viewer, history_popup;
@@ -79,9 +78,7 @@
    }
 
    function init() {
-
       history_popup = $("#history_popup");
-
 
       history_popup.on('shown', function () {
          _gaq.push(['_trackEvent', "history", 'shown']);
@@ -148,50 +145,85 @@
       history_popup.find(".btn-primary").click(function () {
          history_popup.find(".modal-body .nav li.active").trigger("apply");
       });
-
-      history_popup.find("#hist_clear").click(function () {
-         var keys = getHistoryKeys();
-         $.each(keys, function (i, k) {
-            localStorage.removeItem(k);
-         });
-         history_popup.find(".modal-body .nav").html("");
-         history_viewer.getSession().setValue("No history available");
-      })
-
    }
 
    function addToHistory(server, endpoint, method, data) {
-      var keys = getHistoryKeys();
-      keys.splice(0, 500); // only maintain most recent X;
-      $.each(keys, function (i, k) {
-         localStorage.removeItem(k);
-      });
+      try {
+        var history_name_popup = $("#history_name_popup");
+        history_name_popup.modal();
 
-      var timestamp = new Date().getTime();
-      var k = "hist_elem_" + timestamp;
-      localStorage.setItem(k, JSON.stringify(
-         { 'time': timestamp, 'server': server, 'endpoint': endpoint, 'method': method, 'data': data }));
+        history_name_popup.on('shown', function () {
+           $("#history_name").val(sense.history.name);
+           $('#history_name').focus();
+           $('#history_name').select();
+        });
+
+        $('#save_history').click(function() {
+           $("#query_name_form").validator();
+           var historyName = $("#history_name").val();
+           sense.history.name = historyName;
+
+           if (!historyName) {
+              console.log("history name is empty"); 
+              return;
+           }
+           
+           $("#history_name_popup").modal('hide');
+
+           var content = sense.editor.getValue();
+
+           var type = 'PUT';
+           if(!sense.history.id) {
+               sense.history.id = generateUUID();
+               type = 'POST';
+           }
+
+           var data = {
+               "name" : historyName,
+               "content" : encodeURIComponent(content)
+           };
+
+           $.ajax({
+               url: $("#es_server").val() + '/sense/query/' + sense.history.id,
+               data: JSON.stringify(data),
+               type: type,
+               dataType: "json",
+               success: function() {
+                   console.log("Editor content saved with id: " + sense.history.id);
+               }
+           });
+        });
+      }
+      catch (e) {
+         console.log("Ignoring saving error: " + e)
+      }
    }
 
    function saveCurrentEditorState(server, content) {
-      var timestamp = new Date().getTime();
-      localStorage.setItem("editor_state", JSON.stringify(
-         { 'time': timestamp, 'server': server, 'content': content }));
-
    }
 
    function getSavedEditorState(server, content) {
-      return JSON.parse(localStorage.getItem("editor_state"));
    }
+
+   function generateUUID(){
+       var d = new Date().getTime();
+       var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+           var r = (d + Math.random()*16)%16 | 0;
+           d = Math.floor(d/16);
+           return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+       });
+       return uuid;
+   };
 
    global.sense.history = {
       init: init,
+      id : "",
+      name : "",
       addToHistory: addToHistory,
       getHistoricalServers: getHistoricalServers,
       saveCurrentEditorState: saveCurrentEditorState,
       getSavedEditorState: getSavedEditorState
    };
-
 })();
 
 

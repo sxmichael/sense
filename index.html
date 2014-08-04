@@ -18,9 +18,8 @@
         <button class="pull-left btn btn-link"><span id="notification" style="visibility: hidden"
                                                      class="label label-info"></span></button>
         <button id="help_btn" class="btn pull-right-btn" data-toggle="modal" data-target="#help_popup">Help</button>
-        <button id="history_btn" class="btn pull-right-btn" data-toggle="modal" data-target="#history_popup">History
-        </button>
-
+        <button id="history_btn" class="btn pull-right-btn" data-toggle="modal" data-target="#history_popup">History</button>
+        <button id="save_btn" class="btn pull-right-btn">Save</button>
     </div>
 </div>
 <div id="main" class="container-fluid">
@@ -119,6 +118,18 @@
     </div>
     <div class="modal-footer">
         <a href="#" class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Dismiss</a>
+    </div>
+</div>
+<div id="history_name_popup" class="modal hide fade" data-keyboard="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>History Name</h3>
+    </div>
+    <div class="modal-body">
+        <input type="text" id="history_name" placeholder="Enter History Name" required></input>
+    </div>
+    <div class="modal-footer">
+        <button type="button" id="save_history" class="btn btn-primary">Save</button>
     </div>
 </div>
 <div id="welcome_popup" class="modal hide fade" data-keyboard="true" data-remote="welcome.html">

@@ -2,6 +2,11 @@ if (!sense)
     sense = { };
 
 sense.VERSION = "0.9.0";
+$("#es_server").val(location.protocol + '//' + location.hostname + ':' + location.port);
+
+$(document).ready(function(){
+   $('#save_btn').click(sense.history.addToHistory);
+})
 
 function autoRetryIfTokenizing(func, cancelAlreadyScheduledCalls) {
     var timer = false;
@@ -107,10 +112,6 @@ function submitCurrentRequestToES() {
                 ((xhr.status >= 400 && xhr.status < 600) ||
                     (xhr.status >= 200 && xhr.status < 300)
                     )) {
-                // we have someone on the other side. Add to history
-                sense.history.addToHistory(es_server, es_url, es_method, es_data);
-
-
                 var value = xhr.responseText;
                 try {
                     value = JSON.stringify(JSON.parse(value), null, 3);
