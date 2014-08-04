@@ -4,35 +4,27 @@ Sense
 A JSON aware developer's interface to ElasticSearch. Comes with handy machinery such as syntax highlighting, autocomplete,
 formatting and code folding.
 
-[![Build Status](https://travis-ci.org/bleskes/sense.png)](https://travis-ci.org/bleskes/sense)
-
-Installation
-------------
-
-Sense is installed as a Chrome Extension. Install it from
-the [Chrome Webstore](http://bit.ly/es_sense) .
-
 Screenshots
 -----------
 
 ### Syntax highlighting
-![Syntax highlighting](https://github.com/bleskes/sense/raw/master/docs/syntaxhighlighting.png)
+![Syntax highlighting](https://github.com/fenriswolf/sense/raw/master/docs/syntaxhighlighting.png)
 
 ### Auto complete
-![Auto complete](https://github.com/bleskes/sense/raw/master/docs/autocomplete.png)
+![Auto complete](https://github.com/fenriswolf/sense/raw/master/docs/autocomplete.png)
 
 ### Broken JSON detection
-![Broken JSON](https://github.com/bleskes/sense/raw/master/docs/broken.png)
+![Broken JSON](https://github.com/fenriswolf/sense/raw/master/docs/broken.png)
 
 ### History
-![History](https://github.com/bleskes/sense/raw/master/docs/history.png)
+![History](https://github.com/fenriswolf/sense/raw/master/docs/history.png)
 
 Other goodies
 -----
 
 - Keep multiple requests at hand:
 
-  ![Multiple requests](https://github.com/bleskes/sense/raw/master/docs/requestformat.png)
+  ![Multiple requests](https://github.com/fenriswolf/sense/raw/master/docs/requestformat.png)
 - Copy and paste requests as cURL
 - Resizable panels
 - Friendly keyboard shortcuts (for a complete list, click the help button):
