@@ -140,10 +140,14 @@
    }
 
    function getFieldNamesFromTypeMapping(type_mapping) {
-      var field_list =
-         $.map(type_mapping['properties'], function (field_mapping, field_name) {
-            return getFieldNamesFromFieldMapping(field_name, field_mapping);
-         });
+      var field_list = [];
+
+      if (type_mapping['properties']) {
+         field_list =
+            $.map(type_mapping['properties'], function (field_mapping, field_name) {
+               return getFieldNamesFromFieldMapping(field_name, field_mapping);
+            });
+      }
 
       // deduping
       var last = undefined;
