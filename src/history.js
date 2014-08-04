@@ -3,43 +3,24 @@
 
    var history_viewer, history_popup;
 
-   function getHistoryKeys() {
-      var keys = [];
-      for (var i = 0; i < localStorage.length; i++) {
-         var k = localStorage.key(i);
-         if (k.indexOf("hist_elem") == 0) {
-            keys.push(k);
-         }
-      }
-
-      keys.sort();
-      keys.reverse();
-      return keys;
-   }
-
    function getHistory() {
-      var hist_items = [];
-      $.each(getHistoryKeys(), function (i, key) {
-         hist_items.push(JSON.parse(localStorage.getItem(key)));
+      $.ajax({
+         url: $("#es_server").val() + '/sense/_search?sort=name:asc',
+         data: JSON.stringify(data),
+         type: type,
+         dataType: "json",
+         success: function() {
+             console.log("Editor content saved with id: " + sense.history.id);
+         }
       });
-
-      return hist_items;
    }
 
    function getHistoricalServers() {
-      var servers = {};
-      $.each(getHistory(), function (i, h) {
-         servers[h.server] = 1;
-      });
-
-      var server_list = [];
-      for (var s in servers) server_list.push(s);
-
-      return server_list;
+      return [];
    }
 
    function populateHistElem(hist_elem) {
-      var s = hist_elem.method + " " + hist_elem.endpoint + "\n" + (hist_elem.data || "");
+      var s = (hist_elem.data || "");
       history_viewer.setValue(s);
       history_viewer.clearSelection();
    }
@@ -66,7 +47,7 @@
          prefix = "\n\n";
       }
 
-      var s = prefix + hist_elem.method + " " + hist_elem.endpoint;
+      var s = prefix;
       if (hist_elem.data) s += "\n" + hist_elem.data;
 
       s += suffix;
@@ -92,48 +73,56 @@
          history_viewer.renderer.setShowPrintMargin(false);
          sense.editor.getSession().setUseWrapMode(true);
 
-         $.each(getHistory(), function (i, hist_elem) {
-            var li = $('<li><a href="#"><i class="icon-chevron-right"></i><span/></a></li>');
-            var disc = hist_elem.endpoint;
-            var date = moment(hist_elem.time);
-            if (date.diff(moment(), "days") < -7)
-               disc += " (" + date.format("MMM D") + ")";
-            else
-               disc += " (" + date.fromNow() + ")";
+         $.ajax({
+            url: $("#es_server").val() + '/sense/_search?sort=name:asc',
+            type: 'GET',
+            dataType: "json",
+            success: function(result) {
+               hits = result.hits.hits;
+               for(var i = 0; i < hits.length; i++) {
+                  var hist_elem = hits[i]._source;
+                  var li = $('<li><a href="#"><i class="icon-chevron-right"></i><span/></a></li>');
+                  var disc = hist_elem.name;
+                  var date = moment(hist_elem.time);
+                  if (date.diff(moment(), "days") < -7)
+                     disc += " (" + date.format("MMM D") + ")";
+                  else
+                     disc += " (" + date.fromNow() + ")";
 
-            li.find("span").text(disc);
-            li.attr("title", disc);
+                  li.find("span").text(disc);
+                  li.attr("title", disc);
 
-            li.find("a").click(function () {
-               history_popup.find('.modal-body .nav li').removeClass("active");
-               li.addClass("active");
-               populateHistElem(hist_elem);
-               return false;
-            });
+                  li.find("a").click(function () {
+                     history_popup.find('.modal-body .nav li').removeClass("active");
+                     li.addClass("active");
+                     populateHistElem(hist_elem);
+                     return false;
+                  });
 
-            li.dblclick(function () {
-               li.addClass("active");
-               history_popup.find(".btn-primary").click();
-            });
+                  li.dblclick(function () {
+                     li.addClass("active");
+                     history_popup.find(".btn-primary").click();
+                  });
 
-            li.hover(function () {
-               populateHistElem(hist_elem);
-               return false;
-            }, function () {
-               history_popup.find(".modal-body .nav li.active a").click();
-            });
+                  li.hover(function () {
+                     populateHistElem(hist_elem);
+                     return false;
+                  }, function () {
+                     history_popup.find(".modal-body .nav li.active a").click();
+                  });
 
-            li.bind('apply', function () {
-               _gaq.push(['_trackEvent', "history", 'applied']);
-               applyHistElem(hist_elem);
-            });
+                  li.bind('apply', function () {
+                     _gaq.push(['_trackEvent', "history", 'applied']);
+                     applyHistElem(hist_elem);
+                  });
 
 
-            li.appendTo(history_popup.find(".modal-body .nav"));
+                  li.appendTo(history_popup.find(".modal-body .nav"));
+               }
+            }
          });
-
+         
          history_popup.find(".modal-body .nav li:first a").click();
-
       });
 
       history_popup.on('hidden', function () {
@@ -147,7 +136,7 @@
       });
    }
 
-   function addToHistory(server, endpoint, method, data) {
+   function addToHistory() {
       try {
         var history_name_popup = $("#history_name_popup");
         history_name_popup.modal();
@@ -159,7 +148,6 @@
         });
 
         $('#save_history').click(function() {
-           $("#query_name_form").validator();
            var historyName = $("#history_name").val();
            sense.history.name = historyName;
 
@@ -170,7 +158,7 @@
            
            $("#history_name_popup").modal('hide');
 
-           var content = sense.editor.getValue();
+           var data = sense.editor.getValue();
 
            var type = 'PUT';
            if(!sense.history.id) {
@@ -178,14 +166,16 @@
                type = 'POST';
            }
 
-           var data = {
+           var timestamp = new Date().getTime();
+           var index = {
                "name" : historyName,
-               "content" : encodeURIComponent(content)
+               'time': timestamp,
+               'data': data
            };
 
            $.ajax({
                url: $("#es_server").val() + '/sense/query/' + sense.history.id,
-               data: JSON.stringify(data),
+               data: JSON.stringify(index),
                type: type,
                dataType: "json",
                success: function() {
