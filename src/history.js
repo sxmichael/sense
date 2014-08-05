@@ -27,34 +27,10 @@
 
    function applyHistElem(hist_elem) {
       var session = sense.editor.getSession();
-      var pos = sense.editor.getCursorPosition();
-      var prefix = "";
-      var suffix = "\n";
-      if (sense.utils.isStartRequestRow(pos.row)) {
-         pos.column = 0;
-         suffix += "\n";
-      }
-      else if (sense.utils.isEndRequestRow(pos.row)) {
-         var line = session.getLine(pos.row);
-         pos.column = line.length;
-         prefix = "\n\n";
-      }
-      else if (sense.utils.isInBetweenRequestsRow(pos.row)) {
-         pos.column = 0;
-      }
-      else {
-         pos = sense.utils.nextRequestEnd(pos);
-         prefix = "\n\n";
+      if (hist_elem.data) {
+         session.setValue(hist_elem.data);
       }
 
-      var s = prefix;
-      if (hist_elem.data) s += "\n" + hist_elem.data;
-
-      s += suffix;
-
-      session.insert(pos, s);
-      sense.editor.clearSelection();
-      sense.editor.moveCursorTo(pos.row + prefix.length, 0);
       sense.editor.focus();
    }
 
@@ -79,8 +55,9 @@
             dataType: "json",
             success: function(result) {
                hits = result.hits.hits;
-               for(var i = 0; i < hits.length; i++) {
-                  var hist_elem = hits[i]._source;
+
+               $.each(hits, function (i, hit) {
+                  var hist_elem = hit._source;
                   var li = $('<li><a href="#"><i class="icon-chevron-right"></i><span/></a></li>');
                   var disc = hist_elem.name;
                   var date = moment(hist_elem.time);
@@ -118,11 +95,11 @@
 
 
                   li.appendTo(history_popup.find(".modal-body .nav"));
-               }
+               });
+
+               history_popup.find(".modal-body .nav li:first a").click();
             }
          });
-         
-         history_popup.find(".modal-body .nav li:first a").click();
       });
 
       history_popup.on('hidden', function () {
@@ -149,7 +126,6 @@
 
         $('#save_history').click(function() {
            var historyName = $("#history_name").val();
-           sense.history.name = historyName;
 
            if (!historyName) {
               console.log("history name is empty"); 
@@ -161,9 +137,10 @@
            var data = sense.editor.getValue();
 
            var type = 'PUT';
-           if(!sense.history.id) {
+           if(!sense.history.id || historyName != sense.history.name) {
                sense.history.id = generateUUID();
                type = 'POST';
+               sense.history.name = historyName;
            }
 
            var timestamp = new Date().getTime();
