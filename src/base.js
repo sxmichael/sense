@@ -38,7 +38,6 @@ function autoRetryIfTokenizing(func, cancelAlreadyScheduledCalls) {
 
 function resetToValues(server, content) {
     if (server != null) {
-        $("#es_server").val(server);
         sense.mappings.notifyServerChange(server);
     }
     if (content != null) sense.editor.getSession().setValue(content);
