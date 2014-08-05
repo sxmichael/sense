@@ -2,8 +2,7 @@ if (!sense)
     sense = { };
 
 sense.VERSION = "0.9.0";
-//$("#es_server").val(location.protocol + '//' + location.hostname + ':' + location.port);
-$("#es_server").val("http://qcloud-dev-logstash:9200");
+$("#es_server").val(location.protocol + '//' + location.hostname + ':' + location.port);
 
 $(document).ready(function(){
    $('#save_btn').click(sense.history.addToHistory);
