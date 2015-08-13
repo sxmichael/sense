@@ -159,7 +159,7 @@
       per_index_types = {};
       $.each(mappings, function (index, index_mapping) {
          var normalized_index_mappings = {};
-         $.each(index_mapping, function (type_name, type_mapping) {
+         $.each(index_mapping["mappings"], function (type_name, type_mapping) {
             var field_list = getFieldNamesFromTypeMapping(type_mapping);
             normalized_index_mappings[type_name] = field_list;
          });
